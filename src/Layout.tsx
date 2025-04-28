@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/tabs"
 import { EventsGrid } from "./components/EventsGrid"
 import { MissionsCalendar } from "./components/MissionCalendar"
+
 export function Layout() {
     return (
         <div className=" h-screen bg-gray-100">

@@ -1,20 +1,14 @@
-import { Calendar, dateFnsLocalizer, Event, Views } from 'react-big-calendar'
+import { Calendar, dateFnsLocalizer, View, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { fr } from 'date-fns/locale'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { useCallback, useMemo, useState } from "react"
-
-// Définir le type pour les événements
-interface CalendarEvent extends Event {
-    id: number;
-    title: string;
-    start: Date;
-    end: Date;
-    allDay?: boolean;
-    isDraggable?: boolean;
-}
+import { CalendarEvent } from '../types'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 // Définir le type pour les compteurs
 interface Counters {
@@ -29,6 +23,7 @@ const events: CalendarEvent[] = [
         start: new Date(2023, 0, 1, 10, 0),
         end: new Date(2023, 0, 1, 12, 0),
         allDay: false,
+        isDraggable: true,
     },
     {
         id: 2,
@@ -36,6 +31,7 @@ const events: CalendarEvent[] = [
         start: new Date(2023, 0, 2, 14, 0),
         end: new Date(2023, 0, 2, 16, 0),
         allDay: false,
+        isDraggable: true,
     },
     {
         id: 3,
@@ -43,6 +39,7 @@ const events: CalendarEvent[] = [
         start: new Date(2023, 0, 3, 9, 0),
         end: new Date(2023, 0, 3, 11, 0),
         allDay: false,
+        isDraggable: true,
     },
 ]
 
@@ -58,19 +55,18 @@ const localizer = dateFnsLocalizer({
 
 const DnDCalendar = withDragAndDrop(Calendar)
 
-const adjEvents = events.map((it: CalendarEvent, ind: number) => ({
-    ...it,
-    isDraggable: ind % 2 === 0,
-}))
 
 const formatName = (name: string, count: number): string => `${name} ID ${count}`
 
 
 export function MissionsCalendar() {
-    const [myEvents, setMyEvents] = useState<CalendarEvent[]>(adjEvents)
+    const [myEvents, setMyEvents] = useState<CalendarEvent[]>(events)
     const [draggedEvent, setDraggedEvent] = useState<any>(undefined)
-    const [displayDragItemInCell, setDisplayDragItemInCell] = useState<boolean>(true)
+    const [displayDragItemInCell, _] = useState<boolean>(true)
     const [counters, setCounters] = useState<Counters>({ item1: 0, item2: 0 })
+    const [currentView, setCurrentView] = useState<View>(Views.MONTH)
+    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+    const [isSheetOpen, setIsSheetOpen] = useState(false)
 
     const eventPropGetter = useCallback(
         (event: object) => {
@@ -128,7 +124,7 @@ export function MissionsCalendar() {
                 const newId = Math.max(...idList) + 1
                 return [
                     ...prev,
-                    { start: startDate, end: endDate, allDay, id: newId, title: 'New Event' } as CalendarEvent
+                    { start: startDate, end: endDate, allDay, id: newId, title: 'New Event', isDraggable: true } as CalendarEvent
                 ]
             })
         },
@@ -151,6 +147,7 @@ export function MissionsCalendar() {
                 start: startDate,
                 end: endDate,
                 allDay: isAllDay,
+                isDraggable: true,
             }
             setDraggedEvent(null)
             setCounters((prev) => {
@@ -183,26 +180,84 @@ export function MissionsCalendar() {
         [setMyEvents]
     );
 
+    const handleDragStart = useCallback((event: { title: string, name: string }) => setDraggedEvent(event), [])
+
     const defaultDate = useMemo(() => new Date(2023, 0, 1), [])
     return (
-        <DnDCalendar
-            defaultDate={defaultDate}
-            defaultView={Views.MONTH}
-            dragFromOutsideItem={
-                displayDragItemInCell ? dragFromOutsideItem : undefined
-            }
-            draggableAccessor={(event) => !!(event as CalendarEvent).isDraggable}
-            eventPropGetter={eventPropGetter}
-            events={myEvents}
-            localizer={localizer}
-            onDropFromOutside={onDropFromOutside}
-            onEventDrop={moveEvent}
-            onEventResize={resizeEvent}
-            onSelectSlot={newEvent}
-            resizable
-            selectable
-            style={{ minHeight: 600 }}
-        />
+        <div>
+            <section className="w-full flex gap-4 flex-wrap bg-white rounded-lg p-4 border border-gray-200">
+                {Object.entries(counters).map(([name, count]) => (
+                    <div
+                        draggable="true"
+                        key={name}
+                        onDragStart={() =>
+                            handleDragStart({ title: formatName(name, count), name })
+                        }
+                        className="border rounded-lg p-2 flex flex-col gap-2"
+                    >
+                        {formatName(name, count)}
+                    </div>
+                ))}
+            </section>
+            <DnDCalendar
+                defaultDate={defaultDate}
+                defaultView={Views.MONTH}
+                dragFromOutsideItem={
+                    displayDragItemInCell ? dragFromOutsideItem : undefined
+                }
+                draggableAccessor={(event) => !!(event as CalendarEvent).isDraggable}
+                eventPropGetter={eventPropGetter}
+                events={myEvents}
+                localizer={localizer}
+                onDropFromOutside={onDropFromOutside}
+                onEventDrop={moveEvent}
+                onEventResize={resizeEvent}
+                onSelectSlot={newEvent}
+                onSelectEvent={(event) => {
+                    setSelectedEvent(event as CalendarEvent);
+                    setIsSheetOpen(true);
+                }}
+                resizable
+                style={{ minHeight: 600 }}
+                view={currentView}
+                onView={setCurrentView}
+            />
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetContent side="right" className="w-[400px]">
+                    <SheetHeader>
+                        <SheetTitle>Modifier l'évènement</SheetTitle>
+                        <SheetDescription>
+                            Modifiez les informations de l'évènement puis validez.
+                        </SheetDescription>
+                    </SheetHeader>
+                    {selectedEvent && (
+                        <form
+                            className="space-y-4 mt-4"
+                            onSubmit={e => {
+                                e.preventDefault();
+                                setIsSheetOpen(false);
+                            }}
+                        >
+                            <div>
+                                <label className="block text-sm font-medium">Titre</label>
+                                <Input
+                                    value={selectedEvent.title}
+                                    onChange={e =>
+                                        setSelectedEvent({ ...selectedEvent, title: e.target.value })
+                                    }
+                                />
+                            </div>
+                            <SheetFooter>
+                                <Button type="submit">Enregistrer</Button>
+                                <SheetClose asChild>
+                                    <Button type="button" variant="outline">Annuler</Button>
+                                </SheetClose>
+                            </SheetFooter>
+                        </form>
+                    )}
+                </SheetContent>
+            </Sheet>
+        </div>
     )
 }
 
