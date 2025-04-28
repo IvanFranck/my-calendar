@@ -4,8 +4,8 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { EventsGrid } from "./components/EventsGrid"
 import { MissionsCalendar } from "./components/MissionCalendar"
+import { AgentsCalendar } from "./components/AgentsCalendar"
 
 export function Layout() {
     return (
@@ -19,7 +19,7 @@ export function Layout() {
                     <TabsContent value="missions">
                         <div className="w-full mt-4 space-y-4">
                             <h1 className="text-2xl font-bold">Missions</h1>
-                            <EventsGrid type="missions" />
+                            {/* <EventsGrid type="missions" /> */}
                             <div className="w-full mt-4">
                                 <MissionsCalendar />
                             </div>
@@ -28,7 +28,7 @@ export function Layout() {
                     <TabsContent value="agents">
                         <div className="w-full mt-4">
                             <h1 className="text-2xl font-bold">Agents</h1>
-                            <EventsGrid type="agents" />
+                            <AgentsCalendar />
                         </div>
                     </TabsContent>
                 </Tabs>

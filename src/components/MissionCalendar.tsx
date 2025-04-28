@@ -184,7 +184,7 @@ export function MissionsCalendar() {
 
     const defaultDate = useMemo(() => new Date(2023, 0, 1), [])
     return (
-        <div>
+        <div className="flex flex-col gap-4">
             <section className="w-full flex gap-4 flex-wrap bg-white rounded-lg p-4 border border-gray-200">
                 {Object.entries(counters).map(([name, count]) => (
                     <div
