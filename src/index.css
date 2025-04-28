@@ -114,7 +114,28 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  .rbc-calendar {
+    @apply bg-white rounded-lg shadow;
+  }
+
+  .rbc-toolbar {
+    @apply flex flex-row items-center justify-between p-2 bg-gray-50 border-b;
+  }
+
+  .rbc-event {
+    @apply px-2 py-1 text-xs font-semibold;
+  }
+
+  .rbc-today {
+    @apply bg-blue-100;
+  }
+
+  .rbc-selected {
+    @apply ring-2 ring-blue-500;
   }
 }
