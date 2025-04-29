@@ -6,8 +6,9 @@ import {
 } from "@/components/ui/tabs"
 import { MissionsCalendar } from "./components/MissionCalendar"
 import { AgentCalendar } from "./components/agent-calendar/AgentCalendar"
-import { useCalendarStore } from "./stores/calendarStore";
+import { useCalendarStore } from "./stores/calendar.store";
 import { useEffect } from "react";
+import { EventForm } from "./components/EventForm";
 
 export function Layout() {
     const { addAgent, addTask } = useCalendarStore();
@@ -49,6 +50,7 @@ export function Layout() {
                     </TabsContent>
                 </Tabs>
             </div>
+            <EventForm />
         </div>
     )
 }
