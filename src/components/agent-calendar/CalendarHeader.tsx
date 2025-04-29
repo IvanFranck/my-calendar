@@ -1,7 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { useCalendarStore } from '@/stores/calendarStore';
+import { useCalendarStore } from '@/stores/calendar.store';
 
 interface CalendarHeaderProps {
     days: Date[];

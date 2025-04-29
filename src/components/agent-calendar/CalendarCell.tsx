@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { format } from 'date-fns';
-import { Agent, Task } from '../../stores/calendarStore';
+import { Agent, Task } from '../../stores/calendar.store';
 import { DraggableTask } from './DraggableTask';
 
 interface CalendarCellProps {

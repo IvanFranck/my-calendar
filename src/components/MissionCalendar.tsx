@@ -6,9 +6,7 @@ import { fr } from 'date-fns/locale'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { useCallback, useMemo, useState } from "react"
 import { CalendarEvent } from '../types'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useDisplayEventFormStore } from '@/stores/display-event.store'
 
 // Définir le type pour les compteurs
 interface Counters {
@@ -65,8 +63,7 @@ export function MissionsCalendar() {
     const [displayDragItemInCell, _] = useState<boolean>(true)
     const [counters, setCounters] = useState<Counters>({ item1: 0, item2: 0 })
     const [currentView, setCurrentView] = useState<View>(Views.MONTH)
-    const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
-    const [isSheetOpen, setIsSheetOpen] = useState(false)
+    const { setIsOpen, setSelectedEvent } = useDisplayEventFormStore()
 
     const eventPropGetter = useCallback(
         (event: object) => {
@@ -215,48 +212,14 @@ export function MissionsCalendar() {
                 onSelectSlot={newEvent}
                 onSelectEvent={(event) => {
                     setSelectedEvent(event as CalendarEvent);
-                    setIsSheetOpen(true);
+                    setIsOpen(true);
                 }}
                 resizable
                 style={{ minHeight: 600 }}
                 view={currentView}
                 onView={setCurrentView}
             />
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetContent side="right" className="w-[400px]">
-                    <SheetHeader>
-                        <SheetTitle>Modifier l'évènement</SheetTitle>
-                        <SheetDescription>
-                            Modifiez les informations de l'évènement puis validez.
-                        </SheetDescription>
-                    </SheetHeader>
-                    {selectedEvent && (
-                        <form
-                            className="space-y-4 mt-4"
-                            onSubmit={e => {
-                                e.preventDefault();
-                                setIsSheetOpen(false);
-                            }}
-                        >
-                            <div>
-                                <label className="block text-sm font-medium">Titre</label>
-                                <Input
-                                    value={selectedEvent.title}
-                                    onChange={e =>
-                                        setSelectedEvent({ ...selectedEvent, title: e.target.value })
-                                    }
-                                />
-                            </div>
-                            <SheetFooter>
-                                <Button type="submit">Enregistrer</Button>
-                                <SheetClose asChild>
-                                    <Button type="button" variant="outline">Annuler</Button>
-                                </SheetClose>
-                            </SheetFooter>
-                        </form>
-                    )}
-                </SheetContent>
-            </Sheet>
+
         </div>
     )
 }

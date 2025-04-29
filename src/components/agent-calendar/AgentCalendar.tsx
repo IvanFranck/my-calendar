@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-import { useCalendarStore } from '../../stores/calendarStore';
+import { useCalendarStore } from '../../stores/calendar.store';
 import { CalendarNavigation } from './CalendarNavigation';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarCell } from './CalendarCell';

@@ -1,4 +1,4 @@
-import { useCalendarStore } from "@/stores/calendarStore"
+import { useCalendarStore } from "@/stores/calendar.store"
 import { DraggableTask } from "./DraggableTask";
 import { useDroppable } from "@dnd-kit/core";
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { format } from 'date-fns';
-import { Task } from '../../stores/calendarStore';
+import { Task } from '../../stores/calendar.store';
 
 interface DraggableTaskProps {
     task: Task;
