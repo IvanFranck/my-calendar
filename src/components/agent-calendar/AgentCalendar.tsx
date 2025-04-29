@@ -8,6 +8,11 @@ import { CalendarCell } from './CalendarCell';
 import { TasksBucket } from './TasksBucket';
 
 export const AgentCalendar: React.FC = () => {
+    const [days, setDays] = useState<Date[]>([]);
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor)
+    );
     const {
         currentDate,
         tasks,
@@ -16,12 +21,7 @@ export const AgentCalendar: React.FC = () => {
         moveTask,
     } = useCalendarStore();
 
-    const sensors = useSensors(
-        useSensor(PointerSensor),
-        useSensor(KeyboardSensor)
-    );
-
-    const [days, setDays] = useState<Date[]>([]);
+    const colSpanStyle = view === 'week' ? 'col-span-1' : 'col-span-7';
 
     useEffect(() => {
         if (view === 'week') {
@@ -71,7 +71,7 @@ export const AgentCalendar: React.FC = () => {
                         </div>
                     </div>
                     {days.map((day) => (
-                        <div key={day.toISOString()} className="flex flex-col">
+                        <div key={day.toISOString()} className={`flex flex-col ${colSpanStyle}`}>
                             {agents.map((agent) => (
                                 <CalendarCell
                                     key={agent.id}
