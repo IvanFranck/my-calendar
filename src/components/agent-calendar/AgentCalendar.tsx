@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import { useCalendarStore } from '../../stores/calendarStore';
@@ -12,6 +12,7 @@ export const AgentCalendar: React.FC = () => {
         currentDate,
         tasks,
         agents,
+        view,
         moveTask,
     } = useCalendarStore();
 
@@ -20,9 +21,18 @@ export const AgentCalendar: React.FC = () => {
         useSensor(KeyboardSensor)
     );
 
-    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
-    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+    const [days, setDays] = useState<Date[]>([]);
+
+    useEffect(() => {
+        if (view === 'week') {
+            const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+            const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+            const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+            setDays(days);
+        } else {
+            setDays([currentDate]);
+        }
+    }, [currentDate, view]);
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
@@ -48,7 +58,7 @@ export const AgentCalendar: React.FC = () => {
         <div className="flex flex-col h-full">
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                 <TasksBucket />
-                <CalendarNavigation />
+                <CalendarNavigation days={days} />
                 <CalendarHeader days={days} />
                 <div className="flex-1 grid grid-cols-8 gap-px bg-gray-200 mt-4">
                     <div className="bg-white text-center">

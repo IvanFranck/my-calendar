@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useCalendarStore } from '../../stores/calendarStore';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export const CalendarNavigation: React.FC = () => {
+interface CalendarNavigationProps {
+    days: Date[];
+}
+
+export const CalendarNavigation: React.FC<CalendarNavigationProps> = ({ days }) => {
     const { currentDate, view, setCurrentDate, setView } = useCalendarStore();
+
+    const displayDays = useMemo(() => {
+        if (days.length === 0) {
+            return '';
+        }
+        if (view === 'week') {
+            const weekStart = format(days[0], 'd MMMM', { locale: fr });
+            const weekEnd = format(days[days.length - 1], 'd MMMM', { locale: fr });
+            return `${weekStart} - ${weekEnd}`;
+        } else {
+            return format(days[0], 'd MMMM yyyy', { locale: fr });
+        }
+    }, [days, view, currentDate]);
 
     const goToPrevious = () => {
         const newDate = new Date(currentDate);
@@ -31,6 +48,7 @@ export const CalendarNavigation: React.FC = () => {
         setCurrentDate(new Date());
     };
 
+
     return (
         <div className="flex items-center justify-between p-4 bg-white border-b">
             <div className="flex items-center space-x-4">
@@ -55,7 +73,7 @@ export const CalendarNavigation: React.FC = () => {
             </div>
 
             <div className="text-lg font-semibold">
-                {format(currentDate, 'MMMM yyyy', { locale: fr })}
+                {displayDays}
             </div>
 
             <div className="flex items-center space-x-2">
