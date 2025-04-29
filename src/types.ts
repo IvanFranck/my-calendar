@@ -8,3 +8,17 @@ export interface CalendarEvent extends Event {
     allDay?: boolean;
     isDraggable?: boolean;
 }
+
+export interface AgentInterface {
+    id: string;
+    name: string;
+}
+
+export interface AgentTaskInterface {
+    id: string;
+    title: string;
+    agentId: string;
+    date: string;
+}
+
+export type AgentCalendarModeType = 'week' | 'day';

@@ -5,9 +5,24 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 import { MissionsCalendar } from "./components/MissionCalendar"
-import { AgentsCalendar } from "./components/AgentsCalendar"
+import { AgentCalendar } from "./components/agent-calendar/AgentCalendar"
+import { useCalendarStore } from "./stores/calendarStore";
+import { useEffect } from "react";
 
 export function Layout() {
+    const { addAgent, addTask } = useCalendarStore();
+
+    useEffect(() => {
+        addAgent({ id: '1', name: 'Agent 1' });
+        addAgent({ id: '2', name: 'Agent 2' });
+        addAgent({ id: '3', name: 'Agent 3' });
+
+        addTask({ id: '1', title: 'Task 1', startDate: new Date('2024-06-10'), endDate: new Date('2024-06-10'), agentId: '1' });
+        addTask({ id: '2', title: 'Task 2', startDate: new Date('2024-06-11'), endDate: new Date('2024-06-11'), agentId: '2' });
+        addTask({ id: '3', title: 'Task 3', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: '3' });
+    }, [addAgent, addTask]);
+
+
     return (
         <div className=" h-screen bg-gray-100">
             <div className="container mx-auto p-4">
@@ -28,7 +43,7 @@ export function Layout() {
                     <TabsContent value="agents">
                         <div className="w-full mt-4">
                             <h1 className="text-2xl font-bold">Agents</h1>
-                            <AgentsCalendar />
+                            <AgentCalendar />
                         </div>
                     </TabsContent>
                 </Tabs>
