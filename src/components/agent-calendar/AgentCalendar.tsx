@@ -5,6 +5,7 @@ import { useCalendarStore } from '../../stores/calendarStore';
 import { CalendarNavigation } from './CalendarNavigation';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarCell } from './CalendarCell';
+import { TasksBucket } from './TasksBucket';
 
 export const AgentCalendar: React.FC = () => {
     const {
@@ -31,27 +32,28 @@ export const AgentCalendar: React.FC = () => {
         const task = tasks.find((t) => t.id === taskId);
 
         if (!task) return;
-        const overId = (over.id as string).split('__')[1] as string;
-        const targetDate = new Date(overId);
-        const targetAgentId = (over.data.current as { agentId: string }).agentId;
+        if ((over.id as string).startsWith('cell-')) {
+            const overId = (over.id as string).split('__')[1] as string;
+            const targetDate = new Date(overId);
+            const targetAgentId = (over.data.current as { agentId: string }).agentId;
+            moveTask(taskId, targetDate, targetAgentId);
+        } else if (over.id === 'unassigned') {
+            const targetDate = task.startDate;
+            moveTask(taskId, targetDate, null);
+        }
 
-        moveTask(taskId, targetDate, targetAgentId);
     };
-
-    // useEffect(() => {
-    //     console.log("agents", agents);
-    // }, [agents]);
 
     return (
         <div className="flex flex-col h-full">
-            <CalendarNavigation />
-            <CalendarHeader days={days} />
-
             <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-                <div className="flex-1 grid grid-cols-8 gap-px bg-gray-200">
-                    <div className="bg-white p-2 text-center">
+                <TasksBucket />
+                <CalendarNavigation />
+                <CalendarHeader days={days} />
+                <div className="flex-1 grid grid-cols-8 gap-px bg-gray-200 mt-4">
+                    <div className="bg-white text-center">
                         <div className="flex flex-col">
-                            <div className="bg-white p-2 text-center font-medium">
+                            <div className="bg-white text-center font-medium">
                                 {agents.map((agent) => (
                                     <div className="bg-white min-h-[100px] flex items-center justify-center p-2 font-medium" key={agent.id}>{agent.name}</div>
                                 ))}

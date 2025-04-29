@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import { addDays, startOfWeek, endOfWeek, format } from 'date-fns';
 
 export type Task = {
   id: string;
   title: string;
   startDate: Date;
   endDate: Date;
-  agentId: string;
+  agentId?: string | null;
 };
 
 export type Agent = {
@@ -28,7 +27,7 @@ interface CalendarState {
   removeTask: (taskId: string) => void;
   addAgent: (agent: Agent) => void;
   removeAgent: (agentId: string) => void;
-  moveTask: (taskId: string, newStartDate: Date, newAgentId: string) => void;
+  moveTask: (taskId: string, newStartDate: Date, newAgentId: string | null) => void;
 }
 
 export const useCalendarStore = create<CalendarState>((set) => ({

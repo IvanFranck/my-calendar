@@ -21,6 +21,7 @@ export function Layout() {
         addTask({ id: '1', title: 'Task 1', startDate: new Date('2025-04-29'), endDate: new Date('2025-04-29'), agentId: '1' });
         addTask({ id: '2', title: 'Task 2', startDate: new Date('2025-04-30'), endDate: new Date('2025-04-30'), agentId: '2' });
         addTask({ id: '3', title: 'Task 3', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: '3' });
+        addTask({ id: '4', title: 'Task 4', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: null });
     }, [addAgent, addTask]);
 
 
@@ -42,7 +43,7 @@ export function Layout() {
                     </TabsContent>
                     <TabsContent value="agents">
                         <div className="w-full mt-4">
-                            <h1 className="text-2xl font-bold">Agents</h1>
+                            <h1 className="text-2xl font-bold mb-4">Agents</h1>
                             <AgentCalendar />
                         </div>
                     </TabsContent>
