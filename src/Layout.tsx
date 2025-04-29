@@ -16,9 +16,10 @@ export function Layout() {
         addAgent({ id: '1', name: 'Agent 1' });
         addAgent({ id: '2', name: 'Agent 2' });
         addAgent({ id: '3', name: 'Agent 3' });
+        addAgent({ id: '4', name: 'Agent 4' });
 
-        addTask({ id: '1', title: 'Task 1', startDate: new Date('2024-06-10'), endDate: new Date('2024-06-10'), agentId: '1' });
-        addTask({ id: '2', title: 'Task 2', startDate: new Date('2024-06-11'), endDate: new Date('2024-06-11'), agentId: '2' });
+        addTask({ id: '1', title: 'Task 1', startDate: new Date('2025-04-29'), endDate: new Date('2025-04-29'), agentId: '1' });
+        addTask({ id: '2', title: 'Task 2', startDate: new Date('2025-04-30'), endDate: new Date('2025-04-30'), agentId: '2' });
         addTask({ id: '3', title: 'Task 3', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: '3' });
     }, [addAgent, addTask]);
 
@@ -34,7 +35,6 @@ export function Layout() {
                     <TabsContent value="missions">
                         <div className="w-full mt-4 space-y-4">
                             <h1 className="text-2xl font-bold">Missions</h1>
-                            {/* <EventsGrid type="missions" /> */}
                             <div className="w-full mt-4">
                                 <MissionsCalendar />
                             </div>

@@ -12,11 +12,15 @@ interface CalendarCellProps {
 
 export const CalendarCell: React.FC<CalendarCellProps> = ({ date, agent, tasks }) => {
     const { setNodeRef, isOver } = useDroppable({
-        id: date.toISOString(),
+        id: `${agent.id}__${date.toISOString()}`,
         data: {
             agentId: agent.id,
         },
     });
+
+    // useEffect(() => {
+    //     console.log("tasks", tasks);
+    // }, [tasks]);
 
     return (
         <div

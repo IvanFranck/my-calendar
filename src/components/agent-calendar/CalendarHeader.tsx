@@ -8,7 +8,8 @@ interface CalendarHeaderProps {
 
 export const CalendarHeader: React.FC<CalendarHeaderProps> = ({ days }) => {
     return (
-        <div className="grid grid-cols-7 gap-px bg-gray-200">
+        <div className="grid grid-cols-8 gap-px bg-gray-200">
+            <div className="bg-white p-2 text-center"></div>
             {days.map((day) => (
                 <div
                     key={day.toISOString()}
