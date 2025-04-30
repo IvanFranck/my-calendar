@@ -9,9 +9,45 @@ import { AgentCalendar } from "./components/agent-calendar/AgentCalendar"
 import { useCalendarStore } from "./stores/calendar.store";
 import { useEffect } from "react";
 import { EventForm } from "./components/EventForm";
+import { TaskInterface } from "./types";
+import { addDays } from "date-fns";
+
+
+// Définir les événements de base
+const initialsEvents: TaskInterface[] = [
+    {
+        id: '1',
+        title: 'task 1',
+        agentId: '1',
+        startDate: addDays(new Date(), 1),
+        endDate: addDays(new Date(), 1),
+    },
+    {
+        id: '2',
+        title: 'task 2',
+        agentId: '2',
+        startDate: addDays(new Date(), 2),
+        endDate: addDays(new Date(), 2),
+    },
+    {
+        id: '3',
+        title: 'task 3',
+        agentId: '3',
+        startDate: addDays(new Date(), 3),
+        endDate: addDays(new Date(), 3),
+    },
+    {
+        id: '4',
+        title: 'task 4',
+        agentId: '3',
+        startDate: addDays(new Date(), 4),
+        endDate: addDays(new Date(), 4),
+    },
+]
+
 
 export function Layout() {
-    const { addAgent, addTask } = useCalendarStore();
+    const { addAgent, setInitialTasks } = useCalendarStore();
 
     useEffect(() => {
         addAgent({ id: '1', name: 'Agent 1' });
@@ -19,11 +55,8 @@ export function Layout() {
         addAgent({ id: '3', name: 'Agent 3' });
         addAgent({ id: '4', name: 'Agent 4' });
 
-        addTask({ id: '1', title: 'Task 1', startDate: new Date('2025-04-29'), endDate: new Date('2025-04-29'), agentId: '1' });
-        addTask({ id: '2', title: 'Task 2', startDate: new Date('2025-04-30'), endDate: new Date('2025-04-30'), agentId: '2' });
-        addTask({ id: '3', title: 'Task 3', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: '3' });
-        addTask({ id: '4', title: 'Task 4', startDate: new Date('2024-06-12'), endDate: new Date('2024-06-12'), agentId: null });
-    }, [addAgent, addTask]);
+        setInitialTasks(initialsEvents)
+    }, [addAgent, setInitialTasks]);
 
 
     return (

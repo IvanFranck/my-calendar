@@ -4,42 +4,15 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { fr } from 'date-fns/locale'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { CalendarEvent } from '../types'
 import { useDisplayEventFormStore } from '@/stores/display-event.store'
+import { useCalendarStore } from '@/stores/calendar.store'
 
 // Définir le type pour les compteurs
 interface Counters {
     [key: string]: number;
 }
-
-// Définir les événements de base
-const events: CalendarEvent[] = [
-    {
-        id: 1,
-        title: 'Event 1',
-        start: new Date(2023, 0, 1, 10, 0),
-        end: new Date(2023, 0, 1, 12, 0),
-        allDay: false,
-        isDraggable: true,
-    },
-    {
-        id: 2,
-        title: 'Event 2',
-        start: new Date(2023, 0, 2, 14, 0),
-        end: new Date(2023, 0, 2, 16, 0),
-        allDay: false,
-        isDraggable: true,
-    },
-    {
-        id: 3,
-        title: 'Event 3',
-        start: new Date(2023, 0, 3, 9, 0),
-        end: new Date(2023, 0, 3, 11, 0),
-        allDay: false,
-        isDraggable: true,
-    },
-]
 
 const localizer = dateFnsLocalizer({
     format,
@@ -58,12 +31,13 @@ const formatName = (name: string, count: number): string => `${name} ID ${count}
 
 
 export function MissionsCalendar() {
-    const [myEvents, setMyEvents] = useState<CalendarEvent[]>(events)
+    const [myEvents, setMyEvents] = useState<CalendarEvent[]>([])
     const [draggedEvent, setDraggedEvent] = useState<any>(undefined)
     const [displayDragItemInCell, _] = useState<boolean>(true)
     const [counters, setCounters] = useState<Counters>({ item1: 0, item2: 0 })
     const [currentView, setCurrentView] = useState<View>(Views.MONTH)
     const { setIsOpen, setSelectedEvent } = useDisplayEventFormStore()
+    const { tasks } = useCalendarStore();
 
     const eventPropGetter = useCallback(
         (event: object) => {
@@ -179,7 +153,21 @@ export function MissionsCalendar() {
 
     const handleDragStart = useCallback((event: { title: string, name: string }) => setDraggedEvent(event), [])
 
-    const defaultDate = useMemo(() => new Date(2023, 0, 1), [])
+    useEffect(() => {
+        const events = tasks
+            .filter(task => task.startDate && task.endDate)
+            .map(task => ({
+                id: Number(task.id),
+                title: task.title,
+                start: task.startDate as Date,
+                end: task.endDate as Date,
+                allDay: false,
+                isDraggable: true
+            }));
+
+        setMyEvents(events)
+    }, [tasks])
+
     return (
         <div className="flex flex-col gap-4">
             <section className="w-full flex gap-4 flex-wrap bg-white rounded-lg p-4 border border-gray-200">
@@ -196,29 +184,32 @@ export function MissionsCalendar() {
                     </div>
                 ))}
             </section>
-            <DnDCalendar
-                defaultDate={defaultDate}
-                defaultView={Views.MONTH}
-                dragFromOutsideItem={
-                    displayDragItemInCell ? dragFromOutsideItem : undefined
-                }
-                draggableAccessor={(event) => !!(event as CalendarEvent).isDraggable}
-                eventPropGetter={eventPropGetter}
-                events={myEvents}
-                localizer={localizer}
-                onDropFromOutside={onDropFromOutside}
-                onEventDrop={moveEvent}
-                onEventResize={resizeEvent}
-                onSelectSlot={newEvent}
-                onSelectEvent={(event) => {
-                    setSelectedEvent(event as CalendarEvent);
-                    setIsOpen(true);
-                }}
-                resizable
-                style={{ minHeight: 600 }}
-                view={currentView}
-                onView={setCurrentView}
-            />
+            {
+                myEvents.length > 0 && (
+                    <DnDCalendar
+                        defaultView={Views.MONTH}
+                        dragFromOutsideItem={
+                            displayDragItemInCell ? dragFromOutsideItem : undefined
+                        }
+                        draggableAccessor={(event) => !!(event as CalendarEvent).isDraggable}
+                        eventPropGetter={eventPropGetter}
+                        events={myEvents}
+                        localizer={localizer}
+                        onDropFromOutside={onDropFromOutside}
+                        onEventDrop={moveEvent}
+                        onEventResize={resizeEvent}
+                        onSelectSlot={newEvent}
+                        onSelectEvent={(event) => {
+                            setSelectedEvent(event as CalendarEvent);
+                            setIsOpen(true);
+                        }}
+                        resizable
+                        style={{ minHeight: 600 }}
+                        view={currentView}
+                        onView={setCurrentView}
+                    />
+                )
+            }
 
         </div>
     )

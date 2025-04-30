@@ -1,31 +1,19 @@
+import { AgentCalendarModeType, AgentInterface, TaskInterface } from '@/types';
 import { create } from 'zustand';
 
-export type Task = {
-  id: string;
-  title: string;
-  startDate: Date;
-  endDate: Date;
-  agentId?: string | null;
-};
-
-export type Agent = {
-  id: string;
-  name: string;
-};
-
-type CalendarView = 'day' | 'week';
 
 interface CalendarState {
   currentDate: Date;
-  view: CalendarView;
-  tasks: Task[];
-  agents: Agent[];
+  view: AgentCalendarModeType;
+  tasks: TaskInterface[];
+  agents: AgentInterface[];
   setCurrentDate: (date: Date) => void;
-  setView: (view: CalendarView) => void;
-  addTask: (task: Task) => void;
-  updateTask: (taskId: string, updates: Partial<Task>) => void;
+  setInitialTasks: (tasks: TaskInterface[]) => void;
+  setView: (view: AgentCalendarModeType) => void;
+  addTask: (task: TaskInterface) => void;
+  updateTask: (taskId: string, updates: Partial<TaskInterface>) => void;
   removeTask: (taskId: string) => void;
-  addAgent: (agent: Agent) => void;
+  addAgent: (agent: AgentInterface) => void;
   removeAgent: (agentId: string) => void;
   moveTask: (taskId: string, newStartDate: Date, newAgentId: string | null) => void;
 }
@@ -35,7 +23,7 @@ export const useCalendarStore = create<CalendarState>((set) => ({
   view: 'week',
   tasks: [],
   agents: [],
-  
+  setInitialTasks: (tasks: TaskInterface[]) => set({ tasks }),
   setCurrentDate: (date) => set({ currentDate: date }),
   setView: (view) => set({ view }),
   

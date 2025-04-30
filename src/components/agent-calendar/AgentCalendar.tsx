@@ -48,7 +48,7 @@ export const AgentCalendar: React.FC = () => {
             const targetAgentId = (over.data.current as { agentId: string }).agentId;
             moveTask(taskId, targetDate, targetAgentId);
         } else if (over.id === 'unassigned') {
-            const targetDate = task.startDate;
+            const targetDate = task.startDate ?? new Date();
             moveTask(taskId, targetDate, null);
         }
 
@@ -60,7 +60,7 @@ export const AgentCalendar: React.FC = () => {
                 <TasksBucket />
                 <CalendarNavigation days={days} />
                 <CalendarHeader days={days} />
-                <div className="flex-1 grid grid-cols-8 gap-px bg-gray-200 mt-4">
+                <div className="flex-1 grid grid-cols-8 gap-px bg-white">
                     <div className="bg-white text-center">
                         <div className="flex flex-col">
                             <div className="bg-white text-center font-medium">
@@ -78,7 +78,7 @@ export const AgentCalendar: React.FC = () => {
                                     date={day}
                                     agent={agent}
                                     tasks={tasks.filter(
-                                        (task) => task.agentId === agent.id && format(task.startDate, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+                                        (task) => task.agentId === agent.id && format(task?.startDate ?? new Date(), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
                                     )}
                                 />
                             ))}
