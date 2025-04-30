@@ -1,10 +1,10 @@
 import { useCalendarStore } from "@/stores/calendar.store"
-import { DraggableTask } from "./DraggableTask";
 import { useDroppable } from "@dnd-kit/core";
+import { DraggableTask } from "./agent-calendar/DraggableTask";
 
 export const TasksBucket = () => {
     const { tasks } = useCalendarStore();
-    const unassignedTasks = tasks.filter((task) => task.agentId === null);
+    const unassignedTasks = tasks.filter((task) => !task.startDate || !task.endDate);
 
     const { setNodeRef, isOver } = useDroppable({
         id: 'unassigned',

@@ -5,14 +5,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { fr } from 'date-fns/locale'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { useCallback, useEffect, useState } from "react"
-import { CalendarEvent } from '../types'
+import { CalendarEvent, TaskInterface } from '../../types'
 import { useDisplayEventFormStore } from '@/stores/display-event.store'
 import { useCalendarStore } from '@/stores/calendar.store'
-
-// Définir le type pour les compteurs
-interface Counters {
-    [key: string]: number;
-}
 
 const localizer = dateFnsLocalizer({
     format,
@@ -26,18 +21,13 @@ const localizer = dateFnsLocalizer({
 
 const DnDCalendar = withDragAndDrop(Calendar)
 
-
-const formatName = (name: string, count: number): string => `${name} ID ${count}`
-
-
 export function MissionsCalendar() {
     const [myEvents, setMyEvents] = useState<CalendarEvent[]>([])
     const [draggedEvent, setDraggedEvent] = useState<any>(undefined)
-    const [displayDragItemInCell, _] = useState<boolean>(true)
-    const [counters, setCounters] = useState<Counters>({ item1: 0, item2: 0 })
     const [currentView, setCurrentView] = useState<View>(Views.MONTH)
     const { setIsOpen, setSelectedEvent } = useDisplayEventFormStore()
-    const { tasks } = useCalendarStore();
+    const { tasks, updateTask } = useCalendarStore();
+    const unassignedTasks = tasks.filter((task) => !task.startDate || !task.endDate);
 
     const eventPropGetter = useCallback(
         (event: object) => {
@@ -49,7 +39,7 @@ export function MissionsCalendar() {
         []
     )
 
-    const dragFromOutsideItem = useCallback(() => draggedEvent === 'undroppable' ? undefined : draggedEvent, [draggedEvent])
+    const dragFromOutsideItem = useCallback(() => draggedEvent, [draggedEvent])
 
     const moveEvent = useCallback(
         ({
@@ -84,53 +74,28 @@ export function MissionsCalendar() {
         [setMyEvents]
     );
 
-    const newEvent = useCallback(
-        (slotInfo: { start: Date | string; end: Date | string; slots?: Date[]; action?: string; allDay?: boolean }) => {
-            const startDate = typeof slotInfo.start === "string" ? new Date(slotInfo.start) : slotInfo.start;
-            const endDate = typeof slotInfo.end === "string" ? new Date(slotInfo.end) : slotInfo.end;
-            const allDay = slotInfo.allDay ?? false;
-
-            setMyEvents((prev) => {
-                const idList = prev.map((item) => item.id)
-                const newId = Math.max(...idList) + 1
-                return [
-                    ...prev,
-                    { start: startDate, end: endDate, allDay, id: newId, title: 'New Event', isDraggable: true } as CalendarEvent
-                ]
-            })
-        },
-        [setMyEvents]
-    )
-
     const onDropFromOutside = useCallback(
-        ({ start, end, allDay: isAllDay }: { start: Date | string; end: Date | string; allDay: boolean }) => {
-            const startDate = typeof start === "string" ? new Date(start) : start;
-            const endDate = typeof end === "string" ? new Date(end) : end;
+        ({ start, end }: { start: Date | string; end: Date | string }) => {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
 
-            if (draggedEvent === 'undroppable') {
+            if (!draggedEvent) {
                 setDraggedEvent(null)
                 return
             }
 
-            const { name } = draggedEvent
-            const event = {
-                title: formatName(name, counters[name]),
-                start: startDate,
-                end: endDate,
-                allDay: isAllDay,
-                isDraggable: true,
+            const { title, id, agentId } = draggedEvent as TaskInterface
+            const event: TaskInterface = {
+                id: id.toString(),
+                title: title,
+                startDate: startDate,
+                endDate: endDate,
+                agentId: agentId,
             }
+            updateTask(id, event)
             setDraggedEvent(null)
-            setCounters((prev) => {
-                const { [name]: count } = prev
-                return {
-                    ...prev,
-                    [name]: count + 1,
-                }
-            })
-            newEvent(event)
         },
-        [draggedEvent, counters, setDraggedEvent, setCounters, newEvent]
+        [draggedEvent, setDraggedEvent, updateTask]
     )
 
     const resizeEvent = useCallback(
@@ -151,7 +116,7 @@ export function MissionsCalendar() {
         [setMyEvents]
     );
 
-    const handleDragStart = useCallback((event: { title: string, name: string }) => setDraggedEvent(event), [])
+    const handleDragStart = useCallback((event: TaskInterface) => setDraggedEvent(event), [])
 
     useEffect(() => {
         const events = tasks
@@ -172,16 +137,16 @@ export function MissionsCalendar() {
     return (
         <div className="flex flex-col gap-4">
             <section className="w-full flex gap-4 flex-wrap bg-white rounded-lg p-4 border border-gray-200">
-                {Object.entries(counters).map(([name, count]) => (
+                {unassignedTasks.map((task) => (
                     <div
                         draggable="true"
-                        key={name}
+                        key={task.id}
                         onDragStart={() =>
-                            handleDragStart({ title: formatName(name, count), name })
+                            handleDragStart(task)
                         }
                         className="border rounded-lg p-2 flex flex-col gap-2"
                     >
-                        {formatName(name, count)}
+                        {task.title}
                     </div>
                 ))}
             </section>
@@ -189,9 +154,7 @@ export function MissionsCalendar() {
                 myEvents.length > 0 && (
                     <DnDCalendar
                         defaultView={Views.MONTH}
-                        dragFromOutsideItem={
-                            displayDragItemInCell ? dragFromOutsideItem : undefined
-                        }
+                        dragFromOutsideItem={dragFromOutsideItem}
                         draggableAccessor={(event) => !!(event as CalendarEvent).isDraggable}
                         eventPropGetter={eventPropGetter}
                         events={myEvents}
@@ -199,7 +162,6 @@ export function MissionsCalendar() {
                         onDropFromOutside={onDropFromOutside}
                         onEventDrop={moveEvent}
                         onEventResize={resizeEvent}
-                        onSelectSlot={newEvent}
                         onSelectEvent={(event) => {
                             setSelectedEvent(event as CalendarEvent);
                             setIsOpen(true);

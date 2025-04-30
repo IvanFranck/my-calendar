@@ -5,7 +5,7 @@ import { useCalendarStore } from '../../stores/calendar.store';
 import { CalendarNavigation } from './CalendarNavigation';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarCell } from './CalendarCell';
-import { TasksBucket } from './TasksBucket';
+import { TasksBucket } from '../TasksBucket';
 
 export const AgentCalendar: React.FC = () => {
     const [days, setDays] = useState<Date[]>([]);

@@ -4,7 +4,7 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { MissionsCalendar } from "./components/MissionCalendar"
+import { MissionsCalendar } from "./components/mission-calendar/MissionCalendar"
 import { AgentCalendar } from "./components/agent-calendar/AgentCalendar"
 import { useCalendarStore } from "./stores/calendar.store";
 import { useEffect } from "react";
@@ -40,8 +40,6 @@ const initialsEvents: TaskInterface[] = [
         id: '4',
         title: 'task 4',
         agentId: '3',
-        startDate: addDays(new Date(), 4),
-        endDate: addDays(new Date(), 4),
     },
 ]
 
