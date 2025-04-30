@@ -11,34 +11,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { formatDateTimeLocal } from "@/lib/utils";
 export function EventForm() {
     const { isOpen, setIsOpen, selectedEvent } = useDisplayEventFormStore();
-    const { agents } = useCalendarStore();
+    const { agents, updateTask } = useCalendarStore();
 
-    const agentsOptions = agents.map((agent) => ({
+    const agentsOptions = useMemo(() => agents.map((agent) => ({
         label: agent.name,
         value: agent.id,
-    }));
+    })), [agents]);
 
     // Initial values pour le formulaire (création ou édition)
-    const defaultValues: TaskSchemaType = useMemo(() => selectedEvent ? {
-        title: selectedEvent?.title || "",
-        startDate: selectedEvent?.start ? formatDateTimeLocal(new Date(selectedEvent.start)) : formatDateTimeLocal(new Date()),
-        endDate: selectedEvent?.end ? formatDateTimeLocal(new Date(selectedEvent.end)) : formatDateTimeLocal(new Date()),
-        agentId: selectedEvent?.agentId || "",
-    } : {
-        title: "",
-        startDate: formatDateTimeLocal(new Date()),
-        endDate: formatDateTimeLocal(new Date()),
-        agentId: "",
+    const defaultValues: TaskSchemaType = useMemo(() => {
+        if (selectedEvent) {
+            //if selectedEvent is a CalendarEvent
+            if ('start' in selectedEvent) {
+                return {
+                    title: selectedEvent.title,
+                    startDate: selectedEvent.start ? formatDateTimeLocal(selectedEvent.start) : formatDateTimeLocal(new Date()),
+                    endDate: selectedEvent.end ? formatDateTimeLocal(selectedEvent.end) : formatDateTimeLocal(new Date()),
+                    agentId: selectedEvent.agentId,
+                }
+            }
+            return {
+                title: selectedEvent.title,
+                startDate: selectedEvent.startDate ? formatDateTimeLocal(selectedEvent.startDate) : formatDateTimeLocal(new Date()),
+                endDate: selectedEvent.endDate ? formatDateTimeLocal(selectedEvent.endDate) : formatDateTimeLocal(new Date()),
+                agentId: selectedEvent.agentId,
+            }
+        } else {
+            return {
+                title: "",
+                startDate: formatDateTimeLocal(new Date()),
+                endDate: formatDateTimeLocal(new Date()),
+                agentId: "",
+            }
+        }
     }, [selectedEvent]);
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<TaskSchemaType>({
         resolver: zodResolver(TaskSchema),
         defaultValues,
     });
-
-    useEffect(() => {
-        reset(defaultValues);
-    }, [selectedEvent, reset]);
 
     function onSubmit(data: TaskSchemaType) {
         const task = {
@@ -47,8 +58,16 @@ export function EventForm() {
             endDate: new Date(data.endDate),
         };
         console.log(task);
+        const taskId = selectedEvent?.id;
+        if (taskId) {
+            updateTask(taskId.toString(), task);
+        }
         setIsOpen(false);
     }
+
+    useEffect(() => {
+        reset(defaultValues);
+    }, [selectedEvent, reset]);
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>

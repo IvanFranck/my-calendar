@@ -1,11 +1,11 @@
 import { create } from 'zustand'
-import { CalendarEvent } from '@/types'
+import { CalendarEvent, TaskInterface } from '@/types'
 
 interface DisplayEventFormState {
   isOpen: boolean
-  selectedEvent: CalendarEvent | null
+  selectedEvent: CalendarEvent | TaskInterface | null
   setIsOpen: (isOpen: boolean) => void
-  setSelectedEvent: (event: CalendarEvent | null) => void
+  setSelectedEvent: (event: CalendarEvent | TaskInterface | null) => void
 }
 
 export const useDisplayEventFormStore = create<DisplayEventFormState>((set) => ({

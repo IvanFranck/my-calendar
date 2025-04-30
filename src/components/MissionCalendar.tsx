@@ -161,6 +161,7 @@ export function MissionsCalendar() {
                 title: task.title,
                 start: task.startDate as Date,
                 end: task.endDate as Date,
+                agentId: task.agentId,
                 allDay: false,
                 isDraggable: true
             }));
