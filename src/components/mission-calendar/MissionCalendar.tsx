@@ -130,7 +130,7 @@ export function MissionsCalendar() {
                 allDay: false,
                 isDraggable: true
             }));
-
+        console.log(events)
         setMyEvents(events)
     }, [tasks])
 

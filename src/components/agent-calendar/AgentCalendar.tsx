@@ -6,9 +6,10 @@ import { CalendarNavigation } from './CalendarNavigation';
 import { CalendarHeader } from './CalendarHeader';
 import { CalendarCell } from './CalendarCell';
 import { TasksBucket } from '../TasksBucket';
-
+import { TaskInterface } from '@/types';
 export const AgentCalendar: React.FC = () => {
     const [days, setDays] = useState<Date[]>([]);
+    const [events, setEvents] = useState<TaskInterface[]>([]);
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor)
@@ -19,6 +20,7 @@ export const AgentCalendar: React.FC = () => {
         agents,
         view,
         moveTask,
+        updateTask
     } = useCalendarStore();
 
     const colSpanStyle = view === 'week' ? 'col-span-1' : 'col-span-7';
@@ -37,7 +39,8 @@ export const AgentCalendar: React.FC = () => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         if (!over) return;
-
+        console.log("active", active)
+        console.log("over", over)
         const taskId = active.id as string;
         const task = tasks.find((t) => t.id === taskId);
 
@@ -46,13 +49,16 @@ export const AgentCalendar: React.FC = () => {
             const overId = (over.id as string).split('__')[1] as string;
             const targetDate = new Date(overId);
             const targetAgentId = (over.data.current as { agentId: string }).agentId;
-            moveTask(taskId, targetDate, targetAgentId);
+            updateTask(taskId, { startDate: targetDate, endDate: targetDate, agentId: targetAgentId });
         } else if (over.id === 'unassigned') {
-            const targetDate = task.startDate ?? new Date();
-            moveTask(taskId, targetDate, null);
+            updateTask(taskId, { startDate: undefined, endDate: undefined });
         }
 
     };
+
+    useEffect(() => {
+        setEvents(tasks.filter(task => task.startDate && task.endDate));
+    }, [tasks]);
 
     return (
         <div className="flex flex-col h-full">
@@ -77,7 +83,7 @@ export const AgentCalendar: React.FC = () => {
                                     key={agent.id}
                                     date={day}
                                     agent={agent}
-                                    tasks={tasks.filter(
+                                    tasks={events.filter(
                                         (task) => task.agentId === agent.id && format(task?.startDate ?? new Date(), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
                                     )}
                                 />

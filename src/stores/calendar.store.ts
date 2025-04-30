@@ -15,7 +15,7 @@ interface CalendarState {
   removeTask: (taskId: string) => void;
   addAgent: (agent: AgentInterface) => void;
   removeAgent: (agentId: string) => void;
-  moveTask: (taskId: string, newStartDate: Date, newAgentId: string | null) => void;
+  moveTask: (task:{taskId: string, newStartDate: Date, newEndDate: Date | null, newAgentId: string | null}) => void;
 }
 
 export const useCalendarStore = create<CalendarState>((set) => ({
@@ -50,12 +50,13 @@ export const useCalendarStore = create<CalendarState>((set) => ({
     tasks: state.tasks.filter((task) => task.agentId !== agentId),
   })),
   
-  moveTask: (taskId, newStartDate, newAgentId) => set((state) => ({
+  moveTask: ({taskId, newStartDate, newEndDate, newAgentId}) => set((state) => ({
     tasks: state.tasks.map((task) =>
       task.id === taskId
         ? {
             ...task,
             startDate: newStartDate,
+            endDate: newEndDate ?? task.endDate,
             agentId: newAgentId,
           }
         : task
