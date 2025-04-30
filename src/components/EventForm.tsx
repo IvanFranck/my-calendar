@@ -9,6 +9,7 @@ import { useEffect, useMemo } from "react";
 import { useCalendarStore } from "@/stores/calendar.store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatDateTimeLocal } from "@/lib/utils";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "./ui/form";
 export function EventForm() {
     const { isOpen, setIsOpen, selectedEvent } = useDisplayEventFormStore();
     const { agents, updateTask } = useCalendarStore();
@@ -46,16 +47,19 @@ export function EventForm() {
         }
     }, [selectedEvent]);
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<TaskSchemaType>({
+    const form = useForm<TaskSchemaType>({
         resolver: zodResolver(TaskSchema),
         defaultValues,
     });
+
+    const { handleSubmit, formState: { errors }, reset } = form;
 
     function onSubmit(data: TaskSchemaType) {
         const task = {
             ...data,
             startDate: new Date(data.startDate),
             endDate: new Date(data.endDate),
+            agentId: data.agentId,
         };
         console.log(task);
         const taskId = selectedEvent?.id;
@@ -79,62 +83,96 @@ export function EventForm() {
                     </SheetDescription>
                 </SheetHeader>
                 {selectedEvent && (
-                    <form
-                        className="space-y-4 mt-4"
-                        onSubmit={handleSubmit(onSubmit)}
-                    >
-                        <div>
-                            <label className="block text-sm font-medium">Titre</label>
-                            <Input {...register("title")} />
-                            {errors.title && (
-                                <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium">Début</label>
-                            <Input
-                                type="datetime-local"
-                                {...register("startDate")}
+                    <Form {...form}>
+                        <form
+                            className="space-y-4 mt-4"
+                            onSubmit={handleSubmit(onSubmit)}
+                        >
+                            <FormField
+                                control={form.control}
+                                name="title"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Titre</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        {errors.title && (
+                                            <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+                                        )}
+                                    </FormItem>
+                                )}
                             />
-                            {errors.startDate && (
-                                <p className="text-red-500 text-xs mt-1">{errors.startDate.message}</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium">Fin</label>
-                            <Input
-                                type="datetime-local"
-                                {...register("endDate")}
+                            <FormField
+                                control={form.control}
+                                name="startDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Début</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="datetime-local"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        {errors.startDate && (
+                                            <p className="text-red-500 text-xs mt-1">{errors.startDate.message}</p>
+                                        )}
+                                    </FormItem>
+                                )}
                             />
-                            {errors.endDate && (
-                                <p className="text-red-500 text-xs mt-1">{errors.endDate.message}</p>
-                            )}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium">Agent</label>
-                            <Select {...register("agentId")}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez un agent" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {agentsOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.agentId && (
-                                <p className="text-red-500 text-xs mt-1">{errors.agentId.message}</p>
-                            )}
-                        </div>
-                        <SheetFooter>
-                            <Button type="submit">Enregistrer</Button>
-                            <SheetClose asChild>
-                                <Button type="button" variant="outline">Annuler</Button>
-                            </SheetClose>
-                        </SheetFooter>
-                    </form>
+                            <FormField
+                                control={form.control}
+                                name="endDate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Fin</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="datetime-local"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        {errors.endDate && (
+                                            <p className="text-red-500 text-xs mt-1">{errors.endDate.message}</p>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="agentId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Agent</FormLabel>
+                                        <FormControl>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value as string}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Sélectionnez un agent" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {agentsOptions.map((option) => (
+                                                        <SelectItem key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormControl>
+                                        {errors.agentId && (
+                                            <p className="text-red-500 text-xs mt-1">{errors.agentId.message}</p>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
+                            <SheetFooter>
+                                <Button type="submit">Enregistrer</Button>
+                                <SheetClose asChild>
+                                    <Button type="button" variant="outline">Annuler</Button>
+                                </SheetClose>
+                            </SheetFooter>
+                        </form>
+                    </Form>
                 )}
             </SheetContent>
         </Sheet>
