@@ -8,6 +8,7 @@ import { TaskSchema, TaskSchemaType } from "@/types";
 import { useEffect, useMemo } from "react";
 import { useCalendarStore } from "@/stores/calendar.store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDateTimeLocal } from "@/lib/utils";
 export function EventForm() {
     const { isOpen, setIsOpen, selectedEvent } = useDisplayEventFormStore();
     const { agents } = useCalendarStore();
@@ -20,13 +21,13 @@ export function EventForm() {
     // Initial values pour le formulaire (création ou édition)
     const defaultValues: TaskSchemaType = useMemo(() => selectedEvent ? {
         title: selectedEvent?.title || "",
-        startDate: selectedEvent?.start ? new Date(selectedEvent.start) : new Date(),
-        endDate: selectedEvent?.end ? new Date(selectedEvent.end) : new Date(),
+        startDate: selectedEvent?.start ? formatDateTimeLocal(new Date(selectedEvent.start)) : formatDateTimeLocal(new Date()),
+        endDate: selectedEvent?.end ? formatDateTimeLocal(new Date(selectedEvent.end)) : formatDateTimeLocal(new Date()),
         agentId: selectedEvent?.agentId || "",
     } : {
         title: "",
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: formatDateTimeLocal(new Date()),
+        endDate: formatDateTimeLocal(new Date()),
         agentId: "",
     }, [selectedEvent]);
 
@@ -40,9 +41,12 @@ export function EventForm() {
     }, [selectedEvent, reset]);
 
     function onSubmit(data: TaskSchemaType) {
-        // Ici tu peux gérer la création ou la modification
-        // Par exemple : saveTask(data)
-        console.log(data);
+        const task = {
+            ...data,
+            startDate: new Date(data.startDate),
+            endDate: new Date(data.endDate),
+        };
+        console.log(task);
         setIsOpen(false);
     }
 
@@ -71,9 +75,7 @@ export function EventForm() {
                             <label className="block text-sm font-medium">Début</label>
                             <Input
                                 type="datetime-local"
-                                {...register("startDate", {
-                                    valueAsDate: true,
-                                })}
+                                {...register("startDate")}
                             />
                             {errors.startDate && (
                                 <p className="text-red-500 text-xs mt-1">{errors.startDate.message}</p>
@@ -83,9 +85,7 @@ export function EventForm() {
                             <label className="block text-sm font-medium">Fin</label>
                             <Input
                                 type="datetime-local"
-                                {...register("endDate", {
-                                    valueAsDate: true,
-                                })}
+                                {...register("endDate")}
                             />
                             {errors.endDate && (
                                 <p className="text-red-500 text-xs mt-1">{errors.endDate.message}</p>

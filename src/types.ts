@@ -24,13 +24,13 @@ export interface AgentInterface {
     name: string;
 }
 
-
 export type AgentCalendarModeType = 'week' | 'day';
 
 export const TaskSchema = z.object({
     title: z.string().min(1, "Le titre est requis"),
-    startDate: z.date({ required_error: "La date de début est requise" }),
-    endDate: z.date({ required_error: "La date de fin est requise" }),
+    startDate: z.string().min(1, "La date de début est requise"),
+    endDate: z.string().min(1, "La date de fin est requise"),
     agentId: z.string().optional().nullable(),
-  });
-  export type TaskSchemaType = z.infer<typeof TaskSchema>;
+});
+
+export type TaskSchemaType = z.infer<typeof TaskSchema>;
